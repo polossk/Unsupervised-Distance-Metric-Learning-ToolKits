@@ -1,6 +1,7 @@
-%% Example 01 Using PCA to reduce the demension of face pic
-% * used 20 eigvalues of each pic
+%% Example 01 Using PCA in Demension Reduction of facial image
+% * used 20 eigvalues of each image
 % * maxinum error rate less than 3%
+% * maxinum absolute error may above 100 grayscale(8-bits gray image)
 %
 %% *READ DATA*
 if (exist('image_set.mat', 'file') ~= 2)
@@ -23,7 +24,7 @@ im_map_length = size(im_map', 2);
 x = zeros(im_h, im_w);
 y = zeros(im_h, im_w);
 
-%% *Create Picture with First 20 Eigvalues and Eigvectors*
+%% *Create Picture with First 20 Singular Values*
 %  Using SVD
 im_svd_set = zeros(n, im_h, im_w, 'uint8');
 fprintf('ERROR Summary: Using svd method\n');
