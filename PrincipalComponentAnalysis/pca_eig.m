@@ -14,7 +14,7 @@
 %% *Source*
 function [D, W, mu] = pca_eig(X, n)
     mu = mean(X(:));
-    bsxfun(@minus, X, mu);
+    X = bsxfun(@minus, X, mu);
     [W, D] = eigs(X * X', n);
 end
 %% *Note*
@@ -25,4 +25,4 @@ end
 %
 % Like this code below:
 %
-% |bsxfun(@minus, X, mu); score = X / W';|
+% |X = bsxfun(@minus, X, mu); score = X / W';|

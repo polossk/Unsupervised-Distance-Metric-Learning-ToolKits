@@ -1,8 +1,8 @@
 %% Example 01 Using PCA in Demension Reduction of facial image
 % * used 20 eigvalues of each image
-% * maxinum error rate less than 3%
-% * maxinum absolute error may above 100 grayscale(8-bits gray image)
-%
+% * maxinum error rate less than 2.7%(n = 20), 2.0%(n = 32)
+% * maxinum absolute error may above 100 grayscale(8-bits gray image, n = 20)
+
 %% *READ DATA*
 if (exist('image_set.mat', 'file') ~= 2)
     files = dir('*.happy.gif');
@@ -24,7 +24,7 @@ im_map_length = size(im_map', 2);
 x = zeros(im_h, im_w);
 y = zeros(im_h, im_w);
 
-%% *Create Picture with First 20 Singular Values*
+%% *Create Picture with First 32 Singular Values*
 %  Using SVD
 im_svd_set = zeros(n, im_h, im_w, 'uint8');
 fprintf('ERROR Summary: Using svd method\n');
@@ -33,15 +33,16 @@ name_suffix = '.happy.svd.gif';
 for id = 1 : n
     im = reshape(im_set(id, :, :), im_h, im_w);
     x = double(im);
-    [D, W, mu] = pca_svd(x, 20);
-    y = W * W' * x;
+    [D, W, mu] = pca_svd(x, 32);
+    z = bsxfun(@minus, x, mu);
+    y = W * W' * z + mu;
     gtcmap = find(y >= im_map_length);
     ltcmap = find(y < 0);
     if (~isempty(gtcmap) || ~isempty(ltcmap))
         y(gtcmap) = im_map_length - 1;
         y(ltcmap) = 0;
     end
-    err = abs(im(:) - y(:)); y = uint8(y);
+    err = abs(x(:) - y(:)); y = uint8(y);
     err_max = max(err);
     err_avg = mean(err);
     err_ratio = err_avg / double(im_map_length);
@@ -62,7 +63,8 @@ for id = 1 : n
     im = reshape(im_set(id, :, :), im_h, im_w);
     x = double(im);
     [D, W, mu] = pca_eig(x, 20);
-    y = W * W' * x;
+    z = bsxfun(@minus, x, mu);
+    y = W * W' * z + mu;
     gtcmap = find(y >= im_map_length);
     ltcmap = find(y < 0);
     if (~isempty(gtcmap) || ~isempty(ltcmap))
@@ -80,7 +82,7 @@ for id = 1 : n
 end
 save('image_eig_set.mat', 'im_eig_set');
 
-%% *Plot All Picture*
+%% *Show All Picture*
 for id = 1 : n / 3
     figure(id);
     for ii = 1 : 3
@@ -91,11 +93,11 @@ for id = 1 : n / 3
         subplot(3, 3, ii * 3 - 1);
         im = reshape(im_svd_set(id * 3 + ii - 3, :, :), im_h, im_w);
         imshow(im, im_map);
-        title('After PCA, using svd');
+        title('SVD, n = 32');
         subplot(3, 3, ii * 3);
         im = reshape(im_eig_set(id * 3 + ii - 3, :, :), im_h, im_w);
         imshow(im, im_map);
-        title('After PCA, using eigs');
+        title('EIGS, n = 20');
     end
     saveas(gcf, strcat('example01-', num2str(id)), 'png');
 end

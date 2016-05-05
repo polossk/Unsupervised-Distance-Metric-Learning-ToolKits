@@ -15,7 +15,7 @@
 function [D, W, mu] = pca_svd(X, n)
     mu = mean(X(:));
     [w, ~] = size(X);
-    bsxfun(@minus, X, mu);
+    X = bsxfun(@minus, X, mu);
     [u, s, ~] = svd(X, 0);
     [~, l] = size(s);
     D = zeros(n, n);
@@ -36,4 +36,4 @@ end
 %
 % Like this code below:
 %
-% |bsxfun(@minus, X, mu); score = X / W';|
+% |X = bsxfun(@minus, X, mu); score = X / W';|
