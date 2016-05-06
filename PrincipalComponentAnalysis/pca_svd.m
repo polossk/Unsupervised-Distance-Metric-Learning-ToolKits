@@ -13,7 +13,7 @@
 %
 %% *Source*
 function [D, W, mu] = pca_svd(X, n)
-    mu = mean(X(:));
+    mu = mean(X, 1);
     [w, ~] = size(X);
     X = bsxfun(@minus, X, mu);
     [u, s, ~] = svd(X, 0);
