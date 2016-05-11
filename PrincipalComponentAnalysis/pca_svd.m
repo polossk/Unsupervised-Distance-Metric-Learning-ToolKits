@@ -1,25 +1,25 @@
 %% Principal Component Analysis (PCA), Using Singular Value Decomposition.
-% |function[D, W, mu] = pca_svd(X, eta, flag)|
+% |function[W, R, D, mu] = pca_svd(X, eta, flag)|
 %
-% |function[D, W, mu] = pca_svd(X, num, flag)|
+% |function[W, R, D, mu] = pca_svd(X, num, flag)|
 %
 % * Author:   Shangkun.Shen
 % * Method:   Singular Value Decomposition
 %
 %% *Usage*
 %
-% * |[D, W, mu] = pca_svd(X, eta);|
-% * |[D, W, mu] = pca_svd(X, eta, '-rebuilt');|
-% * |[D, W, mu] = pca_svd(X, eta, '-all');|
-% * |[D, W, mu] = pca_svd(X, eta, '-single');|
-% * |[D, W, mu] = pca_svd(X, num, '-exact');|
-% * |[D, W, mu] = pca_svd(X, num, '-exact -all');|
-% * |[D, W, mu] = pca_svd(X, num, '-exact -single');|
+% * |[W, R, D, mu] = pca_svd(X, eta);|
+% * |[W, R, D, mu] = pca_svd(X, eta, '-rebuilt');|
+% * |[W, R, D, mu] = pca_svd(X, eta, '-all');|
+% * |[W, R, D, mu] = pca_svd(X, eta, '-single');|
+% * |[W, R, D, mu] = pca_svd(X, num, '-exact');|
+% * |[W, R, D, mu] = pca_svd(X, num, '-exact -all');|
+% * |[W, R, D, mu] = pca_svd(X, num, '-exact -single');|
 %
 % Example
 %
-% # |[D, W, mu] = pca_svd(X, 20, '-exact -all');|
-% # |[D, W, mu] = pca_svd(X, 0.95, '-single');|
+% # |[W, R, D, mu] = pca_svd(X, 20, '-exact -all');|
+% # |[W, R, D, mu] = pca_svd(X, 0.95, '-single');|
 %
 %% *Input Arguments*
 % * |X|: N by P data matrix. Rows of X correspond to observations
@@ -32,12 +32,13 @@
 % as |num| by using '-exact' instead.
 %
 %% *Output Results*
-% * |D|: the principal component variances
+% * |R|: the principal component score
 % * |W|: the principal component coefficients
+% * |D|: the principal component variances
 % * |mu|: average of X, determined by |flag|
 %
 %% *Source Code*
-function [D, W, mu] = pca_svd( X, num, varargin )
+function [W, R, D, mu] = pca_svd( X, num, varargin )
     if (nargin < 2)
         warning 'Lack of input arguments. Terminates.'; return;
     elseif (nargin > 3)
@@ -45,7 +46,7 @@ function [D, W, mu] = pca_svd( X, num, varargin )
     elseif (nargin == 3 && ischar(varargin{1}))
         flag = varargin{1};
     elseif (nargin == 2)
-        flag = '-single -exact';
+        flag = '-single -rebuilt';
     else
         warning 'Wrong input arguments. Terminates.'; return;
     end
@@ -80,31 +81,24 @@ function [D, W, mu] = pca_svd( X, num, varargin )
         mu = mean(X, 1);
     end
 
-    [w, ~] = size(X);
+    dof = max(0, size(X, 1) - 1);
     X = bsxfun(@minus, X, mu);
-    [u, s_, ~] = svd(X, 'econ');
-    s = diag(s_);
-    l = length(s);
+    [u_, s_, v_] = svd(X, 'econ');
+    s_ = diag(s_);
 
-    if strcmp(setting_num, flags{4})
-        D = zeros(num, 1); W = zeros(w, num);
-        if l < num
-            D(1 : l) = s; W(:, 1 : l) = u;
-        else
-            D = s(1 : num); W = u(:, 1 : num);
-        end
-    else
-        n = min(find(cumsum(s ./ sum(s))) > num);
-        W = u(:, 1 : n); D = D(:, 1 : n);
+    W = v_;
+    R = bsxfun(@times, u_, s_');
+    D = s_ .^ 2 ./ dof;
+
+    if strcmp(setting_num, flags{3})
+        num = find(cumsum(D ./ sum(D)) > num, 1);
     end
-    
+    n = min(num, dof);
+
+    W = W(:, 1 : n); R = R(:, 1 : n); D = D(1 : n);
 end
 %% *Note*
-% The principal component score didn't show up in this code. Let
-% variable |score| be the principal component score. Let variable
-% |coeff| be the principal component coefficients. The centered data
-% can be reconstructed by |SCORE * COEFF'|.
+% The centered data can be reconstructed by |SCORE * COEFF'|. Like this
+% code below:
 %
-% Like this code below:
-%
-% |X = bsxfun(@minus, X, mu); score = X / W';|
+% |X_rebuilt_centered =  R * W';|
