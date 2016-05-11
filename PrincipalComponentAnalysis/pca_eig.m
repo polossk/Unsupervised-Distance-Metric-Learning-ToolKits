@@ -1,25 +1,25 @@
 %% Principal Component Analysis (PCA), Using Eigenvalue Decomposition.
-% |function[D, W, mu] = pca_eig(X, eta, flag)|
+% |function[W, R, D, mu] = pca_eig(X, eta, flag)|
 %
-% |function[D, W, mu] = pca_eig(X, num, flag)|
+% |function[W, R, D, mu] = pca_eig(X, num, flag)|
 %
 % * Author:   Shangkun.Shen
 % * Method:   Eigenvalue Decomposition
 %
 %% *Usage*
 %
-% * |[D, W, mu] = pca_eig(X, eta);|
-% * |[D, W, mu] = pca_eig(X, eta, '-rebuilt');|
-% * |[D, W, mu] = pca_eig(X, eta, '-all');|
-% * |[D, W, mu] = pca_eig(X, eta, '-single');|
-% * |[D, W, mu] = pca_eig(X, num, '-exact');|
-% * |[D, W, mu] = pca_eig(X, num, '-exact -all');|
-% * |[D, W, mu] = pca_eig(X, num, '-exact -single');|
+% * |[W, R, D, mu] = pca_eig(X, eta);|
+% * |[W, R, D, mu] = pca_eig(X, eta, '-rebuilt');|
+% * |[W, R, D, mu] = pca_eig(X, eta, '-all');|
+% * |[W, R, D, mu] = pca_eig(X, eta, '-single');|
+% * |[W, R, D, mu] = pca_eig(X, num, '-exact');|
+% * |[W, R, D, mu] = pca_eig(X, num, '-exact -all');|
+% * |[W, R, D, mu] = pca_eig(X, num, '-exact -single');|
 %
 % Example
 %
-% # |[D, W, mu] = pca_eig(X, 20, '-exact -all');|
-% # |[D, W, mu] = pca_eig(X, 0.95, '-single');|
+% # |[W, R, D, mu] = pca_eig(X, 20, '-exact -all');|
+% # |[W, R, D, mu] = pca_eig(X, 0.95, '-single');|
 %
 %% *Input Arguments*
 % * |X|: N by P data matrix. Rows of X correspond to observations
@@ -32,12 +32,13 @@
 % as |num| by using '-exact' instead.
 %
 %% *Output Results*
-% * |D|: the principal component variances
+% * |R|: the principal component score
 % * |W|: the principal component coefficients
+% * |D|: the principal component variances
 % * |mu|: average of X, determined by |flag|
 %
 %% *Source Code*
-function [D, W, mu] = pca_eig( X, num, varargin )
+function [W, R, D, mu] = pca_eig( X, num, varargin )
     if (nargin < 2)
         warning 'Lack of input arguments. Terminates.'; return;
     elseif (nargin > 3)
@@ -45,7 +46,7 @@ function [D, W, mu] = pca_eig( X, num, varargin )
     elseif (nargin == 3 && ischar(varargin{1}))
         flag = varargin{1};
     elseif (nargin == 2)
-        flag = '-single -exact';
+        flag = '-single -rebuilt';
     else
         warning 'Wrong input arguments. Terminates.'; return;
     end
@@ -83,22 +84,18 @@ function [D, W, mu] = pca_eig( X, num, varargin )
     X = bsxfun(@minus, X, mu);
 
     if strcmp(setting_num, flags{4})
-        [W, D_] = eigs(X * X', num);
-        D = diag(D_);
+        [W, D_] = eigs(X' * X, num);
+        D = diag(D_); 
     else
-        [W, D_] = eig(X * X');
+        [W, D_] = eig(X' * X);
         [D, idx] = sort(diag(D_), 'descend');
-        n = min(find(cumsum(D ./ sum(D))) > num);
-        W = W(:, idx); W = W(:, 1 : n); D = D(:, 1 : n);
+        n = find(cumsum(D ./ sum(D)) > num, 1);
+        W = W(:, idx); W = W(:, 1 : n); D = D(1 : n);
     end
-
+    R = X / W';
 end
 %% *Note*
-% The principal component score didn't show up in this code. Let
-% variable |score| be the principal component score. Let variable
-% |coeff| be the principal component coefficients. The centered data
-% can be reconstructed by |SCORE * COEFF'|.
+% The centered data can be reconstructed by |SCORE * COEFF'|. Like this
+% code below:
 %
-% Like this code below:
-%
-% |X = bsxfun(@minus, X, mu); score = X / W';|
+% |X_rebuilt_centered =  R * W';|
