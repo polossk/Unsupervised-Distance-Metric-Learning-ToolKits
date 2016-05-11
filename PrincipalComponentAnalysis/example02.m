@@ -3,7 +3,6 @@
 % * compression ratio is about 1.02%(95%), 3.56%(99%)
 % * average error ratio less than 0.05%
 % * maxinum error ratio may exceed 60%(95%)
-% * maxinum absolute error may above 100 grayscale(8-bits gray image)
 %
 %% *READ DATA*
 if (exist('secom_set.mat', 'file') ~= 2)
