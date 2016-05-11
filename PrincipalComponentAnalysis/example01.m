@@ -1,6 +1,6 @@
 %% Example 01 Using PCA in Demension Reduction of facial image
 % * used 20 eigvalues of each image
-% * maxinum error rate less than 2.7%(n = 20), 2.0%(n = 32)
+% * maxinum error ratio less than 2.7%(n = 20), 2.0%(n = 32)
 % * maxinum absolute error may above 100 grayscale(8-bits gray image, n = 20)
 
 %% *READ DATA*
@@ -33,9 +33,8 @@ name_suffix = '.happy.svd.gif';
 for id = 1 : n
     im = reshape(im_set(id, :, :), im_h, im_w);
     x = double(im);
-    [D, W, mu] = pca_svd(x, 32);
-    z = bsxfun(@minus, x, mu);
-    y = W * W' * z + mu;
+    [W, R, D, mu] = pca_svd(x, 32, '-exact -all');
+    y = bsxfun(@plus, R * W', mu);
     gtcmap = find(y >= im_map_length);
     ltcmap = find(y < 0);
     if (~isempty(gtcmap) || ~isempty(ltcmap))
@@ -46,8 +45,9 @@ for id = 1 : n
     err_max = max(err);
     err_avg = mean(err);
     err_ratio = err_avg / double(im_map_length);
-    fprintf('sample %02d: maxinum error: %3.0f, average error: %4.2f, error rate: %4.2f%%.\n', ...
-        id, err_max, err_avg, err_ratio * 100);
+    fprintf('sample %02d: maximum error: %3.0f, ', id, err_max);
+    fprintf('average error: %4.2f, ', err_avg);
+    fprintf('error ratio: %4.2f%%.\n', err_ratio * 100);
     im_svd_set(id, :, :) = y;
     imwrite(y, im_map, sprintf('%s%02d%s', name_prefix, id, name_suffix));
 end
@@ -62,23 +62,23 @@ name_suffix = '.happy.eig.gif';
 for id = 1 : n
     im = reshape(im_set(id, :, :), im_h, im_w);
     x = double(im);
-    [D, W, mu] = pca_eig(x, 20);
-    z = bsxfun(@minus, x, mu);
-    y = W * W' * z + mu;
+    [W, R, D, mu] = pca_eig(x, 20, '-exact -all');
+    y = bsxfun(@plus, R * W', mu);
     gtcmap = find(y >= im_map_length);
     ltcmap = find(y < 0);
     if (~isempty(gtcmap) || ~isempty(ltcmap))
         y(gtcmap) = im_map_length - 1;
         y(ltcmap) = 0;
     end
-    err = abs(im(:) - y(:));
+    err = abs(im(:) - y(:)); y = uint8(y);
     err_max = max(err);
     err_avg = mean(err);
     err_ratio = err_avg / double(im_map_length);
-    fprintf('sample %02d: maxinum error: %3.0f, average error: %4.2f, error rate: %4.2f%%.\n', ...
-        id, err_max, err_avg, err_ratio * 100);
+    fprintf('sample %02d: maximum error: %3.0f, ', id, err_max);
+    fprintf('average error: %4.2f, ', err_avg);
+    fprintf('error ratio: %4.2f%%.\n', err_ratio * 100);
     im_eig_set(id, :, :) = y;
-    imwrite(uint8(y), im_map, sprintf('%s%02d%s', name_prefix, id, name_suffix));
+    imwrite(y, im_map, sprintf('%s%02d%s', name_prefix, id, name_suffix));
 end
 save('image_eig_set.mat', 'im_eig_set');
 
