@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/badge/release-v1.0.0-brightgreen.svg)](https://github.com/polossk/Unsupervised-Distance-Metric-Learning-ToolKits/releases)
 -->
 ## Portals
->[Code with Matlab Publish](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/) [git code](https://github.com/polossk/Bookcode-of-Unsupervised-Distance-Metric-Learning-ToolKits/) [git site](https://github.com/polossk/Bookcode-of-Unsupervised-Distance-Metric-Learning-ToolKits-Web/)
+>[[Code with Matlab Publish]](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/) [[git code]](https://github.com/polossk/Bookcode-of-Unsupervised-Distance-Metric-Learning-ToolKits/) [[git site]](https://github.com/polossk/Bookcode-of-Unsupervised-Distance-Metric-Learning-ToolKits-Web/)
 
 >[Machine Learning Notebook @Polo's Blog](http://blog.polossk.com/ml-lessonnote/)
 
@@ -18,8 +18,12 @@
 - Check [this](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/) to Preview
 
 ## Index
-- __Principal Component Analysis__ _global structure preserved, linear, best preserve the variance of the data_ [pca_eig](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/pca_eig.html) [pca_svd](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/pca_svd.html) [example01](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/example01.html) [example02](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/example02.html)
-- __Multiple Dimensional Scaling__ _global structure preserved, linear, best preserve inter-point distance in low-rank_
+- __Principal Component Analysis__
+	- _global structure preserved, linear, best preserve the __variance__ of the data_
+	- source: [pca_eig](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/pca_eig.html), [pca_svd](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/pca_svd.html)
+	- examples: [example01](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/example01.html), [example02](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/example02.html)
+- __Multiple Dimensional Scaling__ 
+	- _global structure preserved, linear, best preserve inter-point __distance__ in low-rank_
 
 
 ## Copyright
