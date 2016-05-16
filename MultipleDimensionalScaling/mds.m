@@ -15,6 +15,8 @@
 % # |[Y, e] = mds(pdist( [xx, yy, zz], 
 % @(Xi, Xj)(sqrt(bsxfun(@minus, Xi, Xj) .^ 2 * [.2 .5 .3]'))), 2)|
 %
+% Check |doc pdist| to get more information about distance.
+%
 %% *Input Arguments*
 % * |D|: n-by-n distance matrix recommand, or a more general dissimilarity
 % matrix;
@@ -51,7 +53,7 @@ function [ Y, e ] = mds( D, p )
     	warning 'Bad input argument D. Terminates.'; return;
     end
 
-    % P = eye(n) - repmat(1/n,n,n);
+    % P = eye(n) - repmat(1 / n, n, n);
     % B = P * (-.5 * D .* D) * P;
     % A more efficient way of doing the same thing.
     D = D .* D; % square elements of D
