@@ -19,11 +19,11 @@
 
 ## Index
 - __Principal Component Analysis__
-	- _global structure preserved, linear, best preserve the __variance__ of the data_
+	- _global structure preserved, linear, best preserve the **variance** of the data_
 	- source: [pca_eig](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/pca_eig.html), [pca_svd](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/pca_svd.html)
 	- examples: [example01](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/example01.html), [example02](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/html/example02.html)
 - __Multiple Dimensional Scaling__ 
-	- _global structure preserved, linear, best preserve inter-point __distance__ in low-rank_
+	- _global structure preserved, linear, best preserve inter-point **distance** in low-rank_
 
 
 ## Copyright
