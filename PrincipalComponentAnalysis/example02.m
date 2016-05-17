@@ -1,8 +1,8 @@
 %% Example 01 Using PCA in Demension Reduction of SECOM Data
 % * 95% and 99% to rebuilt data
 % * compression ratio is about 1.02%(95%), 3.56%(99%)
-% * average error ratio less than 0.05%
-% * maxinum error ratio may exceed 60%(95%)
+% * average error ratio less than 4.50%
+% * maxinum error ratio may exceed 6000%(95%), a necessary evil
 %
 %% *READ DATA*
 if (exist('secom_set.mat', 'file') ~= 2)
@@ -38,8 +38,8 @@ err_max_column = max( err_mat );
 err_max = max( err_max_column ./ bsxfun(@plus, max(X), 1e-8) );
 err_avg_column = mean( err_mat );
 err_avg = mean( err_avg_column ./ bsxfun(@plus, max(X), 1e-8) );
-fprintf('    Maximum Error Ratio = %4.2f%%\n', err_max);
-fprintf('    Average Error Ratio = %4.2f%%\n', err_avg);
+fprintf('    Maximum Error Ratio = %4.2f%%\n', err_max * 100);
+fprintf('    Average Error Ratio = %4.2f%%\n', err_avg * 100);
 
 %% *Dimension Reduction, Using EIG and Rebuilt Ratio = 99%*
 [W2, Y2, D2, mu2] = pca_eig(X, 0.99);
@@ -52,16 +52,19 @@ err_max_column = max( err_mat );
 err_max = max( err_max_column ./ bsxfun(@plus, max(X), 1e-8) );
 err_avg_column = mean( err_mat );
 err_avg = mean( err_avg_column ./ bsxfun(@plus, max(X), 1e-8) );
-fprintf('    Maximum Error Ratio = %4.2f%%\n', err_max);
-fprintf('    Average Error Ratio = %4.2f%%\n', err_avg);
+fprintf('    Maximum Error Ratio = %4.2f%%\n', err_max * 100);
+fprintf('    Average Error Ratio = %4.2f%%\n', err_avg * 100);
 
 %% *Plot the Principal Component Variances, After PCA*
 figure(1); foo = @( x )( x ./ sum(x) * 100 );
 
 subplot(2, 1, 1); title('Rebuilt Result(95%)'); 
 plot(foo(D1), '-*'); xlim([1, length(D1)]); 
+legend( sprintf('(95%%) Feature = %2d', featureY1) );
 xlabel('Principal Component'); ylabel('Variances, %');
 
 subplot(2, 1, 2); title('Rebuilt Result(99%)'); 
 plot(foo(D2), '-*'); xlim([1, length(D2)]); 
+legend( sprintf('(99%%) Feature = %2d', featureY2) );
 xlabel('Principal Component'); ylabel('Variances, %');
+saveas(gcf, 'example02', 'png');
