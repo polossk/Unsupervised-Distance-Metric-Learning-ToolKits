@@ -1,0 +1,229 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Principal Component Analysis (PCA), Using Eigenvalue Decomposition.</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-05-11"><meta name="DC.source" content="pca_eig.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Principal Component Analysis (PCA), Using Eigenvalue Decomposition.</h1><!--introduction--><p><tt>function[W, R, D, mu] = pca_eig(X, eta, flag)</tt></p><p><tt>function[W, R, D, mu] = pca_eig(X, num, flag)</tt></p><div><ul><li>Author:   Shangkun.Shen</li><li>Method:   Eigenvalue Decomposition</li></ul></div><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1"><b>Usage</b></a></li><li><a href="#2"><b>Input Arguments</b></a></li><li><a href="#3"><b>Output Results</b></a></li><li><a href="#4"><b>Source Code</b></a></li><li><a href="#5"><b>Note</b></a></li></ul></div><h2><b>Usage</b><a name="1"></a></h2><div><ul><li><tt>[W, R, D, mu] = pca_eig(X, eta);</tt></li><li><tt>[W, R, D, mu] = pca_eig(X, eta, '-rebuilt');</tt></li><li><tt>[W, R, D, mu] = pca_eig(X, eta, '-all');</tt></li><li><tt>[W, R, D, mu] = pca_eig(X, eta, '-single');</tt></li><li><tt>[W, R, D, mu] = pca_eig(X, num, '-exact');</tt></li><li><tt>[W, R, D, mu] = pca_eig(X, num, '-exact -all');</tt></li><li><tt>[W, R, D, mu] = pca_eig(X, num, '-exact -single');</tt></li></ul></div><p>Example</p><div><ol><li><tt>[W, R, D, mu] = pca_eig(X, 20, '-exact -all');</tt></li><li><tt>[W, R, D, mu] = pca_eig(X, 0.95, '-single');</tt></li></ol></div><h2><b>Input Arguments</b><a name="2"></a></h2><div><ul><li><tt>X</tt>: N by P data matrix. Rows of X correspond to observations and columns to variables;</li><li><tt>eta</tt>: coefficient of rebuilt data;</li><li><tt>num</tt>: number of principal component;</li><li><tt>flag</tt>: pca option: '-single' by default, setting <tt>mu</tt> to the average of each columns, also could be '-all', setting <tt>mu</tt> to the average of the whole data; '-rebuilt' by default, take the second argument as <tt>eta</tt>, or as <tt>num</tt> by using '-exact' instead.</li></ul></div><h2><b>Output Results</b><a name="3"></a></h2><div><ul><li><tt>R</tt>: the principal component score</li><li><tt>W</tt>: the principal component coefficients</li><li><tt>D</tt>: the principal component variances</li><li><tt>mu</tt>: average of X, determined by <tt>flag</tt></li></ul></div><h2><b>Source Code</b><a name="4"></a></h2><pre class="codeinput"><span class="keyword">function</span> [W, R, D, mu] = pca_eig( X, num, varargin )
+    <span class="keyword">if</span> (nargin &lt; 2)
+        warning <span class="string">'Lack of input arguments. Terminates.'</span>; <span class="keyword">return</span>;
+    <span class="keyword">elseif</span> (nargin &gt; 3)
+        warning <span class="string">'Too many input arguments. Terminates.'</span>; <span class="keyword">return</span>;
+    <span class="keyword">elseif</span> (nargin == 3 &amp;&amp; ischar(varargin{1}))
+        flag = varargin{1};
+    <span class="keyword">elseif</span> (nargin == 2)
+        flag = <span class="string">'-single -rebuilt'</span>;
+    <span class="keyword">else</span>
+        warning <span class="string">'Wrong input arguments. Terminates.'</span>; <span class="keyword">return</span>;
+    <span class="keyword">end</span>
+
+    setting = strsplit(flag);
+
+    <span class="keyword">if</span> (length(setting) &gt; 2)
+        warning <span class="string">'Too many input arguments. Terminates.'</span>; <span class="keyword">return</span>;
+    <span class="keyword">end</span>
+
+    flags = {<span class="string">'-single'</span>, <span class="string">'-all'</span>, <span class="string">'-rebuilt'</span>, <span class="string">'-exact'</span>};
+
+    <span class="keyword">if</span> any(strcmp(setting, flags{1})) &amp;&amp; any(strcmp(setting, flags{2}))
+        warning <span class="string">'Wrong flag setting. Terminates.'</span>; <span class="keyword">return</span>;
+    <span class="keyword">elseif</span> ~any(strcmp(setting, flags{1})) &amp;&amp; any(strcmp(setting, flags{2}))
+        setting_mu = flags{2};
+    <span class="keyword">else</span>
+        setting_mu = flags{1};
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> any(strcmp(setting, flags{3})) &amp;&amp; any(strcmp(setting, flags{4}))
+        warning <span class="string">'Wrong flag setting. Terminates.'</span>; <span class="keyword">return</span>;
+    <span class="keyword">elseif</span> ~any(strcmp(setting, flags{3})) &amp;&amp; any(strcmp(setting, flags{4}))
+        setting_num = flags{4};
+    <span class="keyword">else</span>
+        setting_num = flags{3};
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> strcmp(setting_mu, flags{2})
+        mu = mean(X(:));
+    <span class="keyword">else</span>
+        mu = mean(X, 1);
+    <span class="keyword">end</span>
+
+    X = bsxfun(@minus, X, mu);
+
+    <span class="keyword">if</span> strcmp(setting_num, flags{4})
+        [W, D_] = eigs(X' * X, num);
+        D = diag(D_);
+    <span class="keyword">else</span>
+        [W, D_] = eig(X' * X);
+        [D, idx] = sort(diag(D_), <span class="string">'descend'</span>);
+        n = find(cumsum(D ./ sum(D)) &gt; num, 1);
+        W = W(:, idx); W = W(:, 1 : n); D = D(1 : n);
+    <span class="keyword">end</span>
+    R = X / W';
+<span class="keyword">end</span>
+</pre><h2><b>Note</b><a name="5"></a></h2><p>The centered data can be reconstructed by <tt>SCORE * COEFF'</tt>. Like this code below:</p><p><tt>X_rebuilt_centered =  R * W';</tt></p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Principal Component Analysis (PCA), Using Eigenvalue Decomposition.
+% |function[W, R, D, mu] = pca_eig(X, eta, flag)|
+%
+% |function[W, R, D, mu] = pca_eig(X, num, flag)|
+%
+% * Author:   Shangkun.Shen
+% * Method:   Eigenvalue Decomposition
+%
+%% *Usage*
+%
+% * |[W, R, D, mu] = pca_eig(X, eta);|
+% * |[W, R, D, mu] = pca_eig(X, eta, '-rebuilt');|
+% * |[W, R, D, mu] = pca_eig(X, eta, '-all');|
+% * |[W, R, D, mu] = pca_eig(X, eta, '-single');|
+% * |[W, R, D, mu] = pca_eig(X, num, '-exact');|
+% * |[W, R, D, mu] = pca_eig(X, num, '-exact -all');|
+% * |[W, R, D, mu] = pca_eig(X, num, '-exact -single');|
+%
+% Example
+%
+% # |[W, R, D, mu] = pca_eig(X, 20, '-exact -all');|
+% # |[W, R, D, mu] = pca_eig(X, 0.95, '-single');|
+%
+%% *Input Arguments*
+% * |X|: N by P data matrix. Rows of X correspond to observations
+% and columns to variables;
+% * |eta|: coefficient of rebuilt data;
+% * |num|: number of principal component;
+% * |flag|: pca option: '-single' by default, setting |mu| to the average
+% of each columns, also could be '-all', setting |mu| to the average of the
+% whole data; '-rebuilt' by default, take the second argument as |eta|, or
+% as |num| by using '-exact' instead.
+%
+%% *Output Results*
+% * |R|: the principal component score
+% * |W|: the principal component coefficients
+% * |D|: the principal component variances
+% * |mu|: average of X, determined by |flag|
+%
+%% *Source Code*
+function [W, R, D, mu] = pca_eig( X, num, varargin )
+    if (nargin < 2)
+        warning 'Lack of input arguments. Terminates.'; return;
+    elseif (nargin > 3)
+        warning 'Too many input arguments. Terminates.'; return;
+    elseif (nargin == 3 && ischar(varargin{1}))
+        flag = varargin{1};
+    elseif (nargin == 2)
+        flag = '-single -rebuilt';
+    else
+        warning 'Wrong input arguments. Terminates.'; return;
+    end
+    
+    setting = strsplit(flag);
+
+    if (length(setting) > 2)
+        warning 'Too many input arguments. Terminates.'; return;
+    end
+
+    flags = {'-single', '-all', '-rebuilt', '-exact'};
+
+    if any(strcmp(setting, flags{1})) && any(strcmp(setting, flags{2}))
+        warning 'Wrong flag setting. Terminates.'; return;
+    elseif ~any(strcmp(setting, flags{1})) && any(strcmp(setting, flags{2}))
+        setting_mu = flags{2};
+    else
+        setting_mu = flags{1};
+    end
+
+    if any(strcmp(setting, flags{3})) && any(strcmp(setting, flags{4}))
+        warning 'Wrong flag setting. Terminates.'; return;
+    elseif ~any(strcmp(setting, flags{3})) && any(strcmp(setting, flags{4}))
+        setting_num = flags{4};
+    else
+        setting_num = flags{3};
+    end
+
+    if strcmp(setting_mu, flags{2})
+        mu = mean(X(:));
+    else
+        mu = mean(X, 1);
+    end
+
+    X = bsxfun(@minus, X, mu);
+
+    if strcmp(setting_num, flags{4})
+        [W, D_] = eigs(X' * X, num);
+        D = diag(D_); 
+    else
+        [W, D_] = eig(X' * X);
+        [D, idx] = sort(diag(D_), 'descend');
+        n = find(cumsum(D ./ sum(D)) > num, 1);
+        W = W(:, idx); W = W(:, 1 : n); D = D(1 : n);
+    end
+    R = X / W';
+end
+%% *Note*
+% The centered data can be reconstructed by |SCORE * COEFF'|. Like this
+% code below:
+%
+% |X_rebuilt_centered =  R * W';|
+##### SOURCE END #####
+--></body></html>

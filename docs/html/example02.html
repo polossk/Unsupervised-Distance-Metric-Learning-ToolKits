@@ -1,0 +1,209 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Example 01 Using PCA in Demension Reduction of SECOM Data</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-05-17"><meta name="DC.source" content="example02.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Example 01 Using PCA in Demension Reduction of SECOM Data</h1><!--introduction--><div><ul><li>95% and 99% to rebuilt data</li><li>compression ratio is about 1.02%(95%), 3.56%(99%)</li><li>average error ratio less than 4.50%</li><li>maxinum error ratio may exceed 6000%(95%), a necessary evil</li></ul></div><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1"><b>READ DATA</b></a></li><li><a href="#2"><b>Dimension Reduction, Using SVD and Rebuilt Ratio = 95%</b></a></li><li><a href="#3"><b>Dimension Reduction, Using EIG and Rebuilt Ratio = 99%</b></a></li><li><a href="#4"><b>Plot the Principal Component Variances, After PCA</b></a></li></ul></div><h2><b>READ DATA</b><a name="1"></a></h2><pre class="codeinput"><span class="keyword">if</span> (exist(<span class="string">'secom_set.mat'</span>, <span class="string">'file'</span>) ~= 2)
+    <span class="keyword">if</span> (exist(<span class="string">'secom.data'</span>, <span class="string">'file'</span>) == 0)
+        warning(<span class="string">'no such data file.'</span>);
+        exit;
+    <span class="keyword">else</span>
+        secom_raw = importdata(<span class="string">'secom.data'</span>, <span class="string">' '</span>)';
+        [features, ~] = size(secom_raw);
+        navg = nanmean(secom_raw);
+        nidx = isnan(secom_raw);
+        midx = bsxfun(@and, nidx, sum(nidx) &lt; features);
+        secom_raw(midx) = navg(nonzeros(bsxfun(@times, midx, 1:numel(navg))));
+        secom_raw = secom_raw';
+        save(<span class="string">'secom_raw.mat'</span>, <span class="string">'secom_raw'</span>);
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    load(<span class="string">'secom_raw.mat'</span>);
+<span class="keyword">end</span>
+X = secom_raw;
+[len, features] = size(secom_raw);
+fprintf(<span class="string">'Sample Capacity = %d\n'</span>, len);
+fprintf(<span class="string">'Sample Features = %d\n'</span>, features);
+</pre><pre class="codeoutput">Sample Capacity = 1567
+Sample Features = 590
+</pre><h2><b>Dimension Reduction, Using SVD and Rebuilt Ratio = 95%</b><a name="2"></a></h2><pre class="codeinput">[W1, Y1, D1, mu1] = pca_svd(X, 0.95);
+[lenY1, featureY1] = size(Y1);
+fprintf(<span class="string">'After PCA(95%%), Features = %d\n'</span>, featureY1);
+fprintf(<span class="string">'    Compression Ratio = %4.2f%%\n'</span>, featureY1 / features * 100);
+Z = bsxfun(@plus, Y1 * W1', mu1);
+err_mat = abs( bsxfun(@minus, Z, X) );
+err_max_column = max( err_mat );
+err_max = max( err_max_column ./ bsxfun(@plus, max(X), 1e-8) );
+err_avg_column = mean( err_mat );
+err_avg = mean( err_avg_column ./ bsxfun(@plus, max(X), 1e-8) );
+fprintf(<span class="string">'    Maximum Error Ratio = %4.2f%%\n'</span>, err_max * 100);
+fprintf(<span class="string">'    Average Error Ratio = %4.2f%%\n'</span>, err_avg * 100);
+</pre><pre class="codeoutput">After PCA(95%), Features = 6
+    Compression Ratio = 1.02%
+    Maximum Error Ratio = 6643.51%
+    Average Error Ratio = 4.06%
+</pre><h2><b>Dimension Reduction, Using EIG and Rebuilt Ratio = 99%</b><a name="3"></a></h2><pre class="codeinput">[W2, Y2, D2, mu2] = pca_eig(X, 0.99);
+[lenY2, featureY2] = size(Y2);
+fprintf(<span class="string">'After PCA(99%%), Features = %d\n'</span>, featureY2);
+fprintf(<span class="string">'    Compression Ratio = %4.2f%%\n'</span>, featureY2 / features * 100);
+Z = bsxfun(@plus, Y2 * W2', mu2);
+err_mat = abs( bsxfun(@minus, Z, X) );
+err_max_column = max( err_mat );
+err_max = max( err_max_column ./ bsxfun(@plus, max(X), 1e-8) );
+err_avg_column = mean( err_mat );
+err_avg = mean( err_avg_column ./ bsxfun(@plus, max(X), 1e-8) );
+fprintf(<span class="string">'    Maximum Error Ratio = %4.2f%%\n'</span>, err_max * 100);
+fprintf(<span class="string">'    Average Error Ratio = %4.2f%%\n'</span>, err_avg * 100);
+</pre><pre class="codeoutput">After PCA(99%), Features = 21
+    Compression Ratio = 3.56%
+    Maximum Error Ratio = 431.37%
+    Average Error Ratio = 3.04%
+</pre><h2><b>Plot the Principal Component Variances, After PCA</b><a name="4"></a></h2><pre class="codeinput">figure(1); foo = @( x )( x ./ sum(x) * 100 );
+
+subplot(2, 1, 1); title(<span class="string">'Rebuilt Result(95%)'</span>);
+plot(foo(D1), <span class="string">'-*'</span>); xlim([1, length(D1)]);
+legend( sprintf(<span class="string">'(95%%) Feature = %2d'</span>, featureY1) );
+xlabel(<span class="string">'Principal Component'</span>); ylabel(<span class="string">'Variances, %'</span>);
+
+subplot(2, 1, 2); title(<span class="string">'Rebuilt Result(99%)'</span>);
+plot(foo(D2), <span class="string">'-*'</span>); xlim([1, length(D2)]);
+legend( sprintf(<span class="string">'(99%%) Feature = %2d'</span>, featureY2) );
+xlabel(<span class="string">'Principal Component'</span>); ylabel(<span class="string">'Variances, %'</span>);
+saveas(gcf, <span class="string">'example02'</span>, <span class="string">'png'</span>);
+</pre><img vspace="5" hspace="5" src="example02_01.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Example 01 Using PCA in Demension Reduction of SECOM Data
+% * 95% and 99% to rebuilt data
+% * compression ratio is about 1.02%(95%), 3.56%(99%)
+% * average error ratio less than 4.50%
+% * maxinum error ratio may exceed 6000%(95%), a necessary evil
+%
+%% *READ DATA*
+if (exist('secom_set.mat', 'file') ~= 2)
+    if (exist('secom.data', 'file') == 0)
+        warning('no such data file.');
+        exit;
+    else
+        secom_raw = importdata('secom.data', ' ')';
+        [features, ~] = size(secom_raw);
+        navg = nanmean(secom_raw);
+        nidx = isnan(secom_raw);
+        midx = bsxfun(@and, nidx, sum(nidx) < features);
+        secom_raw(midx) = navg(nonzeros(bsxfun(@times, midx, 1:numel(navg))));
+        secom_raw = secom_raw';
+        save('secom_raw.mat', 'secom_raw');
+    end
+else
+    load('secom_raw.mat');
+end
+X = secom_raw;
+[len, features] = size(secom_raw);
+fprintf('Sample Capacity = %d\n', len);
+fprintf('Sample Features = %d\n', features);
+
+%% *Dimension Reduction, Using SVD and Rebuilt Ratio = 95%*
+[W1, Y1, D1, mu1] = pca_svd(X, 0.95);
+[lenY1, featureY1] = size(Y1);
+fprintf('After PCA(95%%), Features = %d\n', featureY1);
+fprintf('    Compression Ratio = %4.2f%%\n', featureY1 / features * 100);
+Z = bsxfun(@plus, Y1 * W1', mu1);
+err_mat = abs( bsxfun(@minus, Z, X) );
+err_max_column = max( err_mat );
+err_max = max( err_max_column ./ bsxfun(@plus, max(X), 1e-8) );
+err_avg_column = mean( err_mat );
+err_avg = mean( err_avg_column ./ bsxfun(@plus, max(X), 1e-8) );
+fprintf('    Maximum Error Ratio = %4.2f%%\n', err_max * 100);
+fprintf('    Average Error Ratio = %4.2f%%\n', err_avg * 100);
+
+%% *Dimension Reduction, Using EIG and Rebuilt Ratio = 99%*
+[W2, Y2, D2, mu2] = pca_eig(X, 0.99);
+[lenY2, featureY2] = size(Y2);
+fprintf('After PCA(99%%), Features = %d\n', featureY2);
+fprintf('    Compression Ratio = %4.2f%%\n', featureY2 / features * 100);
+Z = bsxfun(@plus, Y2 * W2', mu2);
+err_mat = abs( bsxfun(@minus, Z, X) );
+err_max_column = max( err_mat );
+err_max = max( err_max_column ./ bsxfun(@plus, max(X), 1e-8) );
+err_avg_column = mean( err_mat );
+err_avg = mean( err_avg_column ./ bsxfun(@plus, max(X), 1e-8) );
+fprintf('    Maximum Error Ratio = %4.2f%%\n', err_max * 100);
+fprintf('    Average Error Ratio = %4.2f%%\n', err_avg * 100);
+
+%% *Plot the Principal Component Variances, After PCA*
+figure(1); foo = @( x )( x ./ sum(x) * 100 );
+
+subplot(2, 1, 1); title('Rebuilt Result(95%)'); 
+plot(foo(D1), '-*'); xlim([1, length(D1)]); 
+legend( sprintf('(95%%) Feature = %2d', featureY1) );
+xlabel('Principal Component'); ylabel('Variances, %');
+
+subplot(2, 1, 2); title('Rebuilt Result(99%)'); 
+plot(foo(D2), '-*'); xlim([1, length(D2)]); 
+legend( sprintf('(99%%) Feature = %2d', featureY2) );
+xlabel('Principal Component'); ylabel('Variances, %');
+saveas(gcf, 'example02', 'png');
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,296 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Example 01 Using PCA in Demension Reduction of facial image</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-05-11"><meta name="DC.source" content="example01.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Example 01 Using PCA in Demension Reduction of facial image</h1><!--introduction--><div><ul><li>used 20 eigvalues of each image</li><li>maxinum error ratio less than 2.7%(n = 20), 2.0%(n = 32)</li><li>maxinum absolute error may above 100 grayscale(8-bits gray image, n = 20)</li></ul></div><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1"><b>READ DATA</b></a></li><li><a href="#2"><b>Create Picture with First 32 Singular Values</b></a></li><li><a href="#3"><b>Create Picture with First 20 Eigvalues and Eigvectors</b></a></li><li><a href="#4"><b>Show All Picture</b></a></li></ul></div><h2><b>READ DATA</b><a name="1"></a></h2><pre class="codeinput"><span class="keyword">if</span> (exist(<span class="string">'image_set.mat'</span>, <span class="string">'file'</span>) ~= 2)
+    files = dir(<span class="string">'*.happy.gif'</span>);
+    n = length(files);
+    info = imfinfo(files(1).name, <span class="string">'gif'</span>);
+    im_map = info.ColorTable;
+    im_w = int32(info.Width);
+    im_h = int32(info.Height);
+    im_set = zeros(n, im_h, im_w, <span class="string">'uint8'</span>);
+    <span class="keyword">for</span> id = 1 : n
+        im_set(id, :, :) = imread(files(id).name, <span class="string">'gif'</span>);
+    <span class="keyword">end</span>
+    save(<span class="string">'image_set.mat'</span>, <span class="string">'im_set'</span>, <span class="string">'im_map'</span>);
+<span class="keyword">else</span>
+    load(<span class="string">'image_set.mat'</span>);
+<span class="keyword">end</span>
+[n, im_h, im_w] = size(im_set);
+im_map_length = size(im_map', 2);
+x = zeros(im_h, im_w);
+y = zeros(im_h, im_w);
+</pre><h2><b>Create Picture with First 32 Singular Values</b><a name="2"></a></h2><pre>Using SVD</pre><pre class="codeinput">im_svd_set = zeros(n, im_h, im_w, <span class="string">'uint8'</span>);
+fprintf(<span class="string">'ERROR Summary: Using svd method\n'</span>);
+name_prefix = <span class="string">'subject'</span>;
+name_suffix = <span class="string">'.happy.svd.gif'</span>;
+<span class="keyword">for</span> id = 1 : n
+    im = reshape(im_set(id, :, :), im_h, im_w);
+    x = double(im);
+    [W, R, D, mu] = pca_svd(x, 32, <span class="string">'-exact -all'</span>);
+    y = bsxfun(@plus, R * W', mu);
+    gtcmap = find(y &gt;= im_map_length);
+    ltcmap = find(y &lt; 0);
+    <span class="keyword">if</span> (~isempty(gtcmap) || ~isempty(ltcmap))
+        y(gtcmap) = im_map_length - 1;
+        y(ltcmap) = 0;
+    <span class="keyword">end</span>
+    err = abs(x(:) - y(:)); y = uint8(y);
+    err_max = max(err);
+    err_avg = mean(err);
+    err_ratio = err_avg / double(im_map_length);
+    fprintf(<span class="string">'sample %02d: maximum error: %3.0f, '</span>, id, err_max);
+    fprintf(<span class="string">'average error: %4.2f, '</span>, err_avg);
+    fprintf(<span class="string">'error ratio: %4.2f%%.\n'</span>, err_ratio * 100);
+    im_svd_set(id, :, :) = y;
+    imwrite(y, im_map, sprintf(<span class="string">'%s%02d%s'</span>, name_prefix, id, name_suffix));
+<span class="keyword">end</span>
+save(<span class="string">'image_svd_set.mat'</span>, <span class="string">'im_svd_set'</span>);
+</pre><pre class="codeoutput">ERROR Summary: Using svd method
+sample 01: maximum error:  66, average error: 2.28, error ratio: 0.89%.
+sample 02: maximum error:  78, average error: 3.03, error ratio: 1.18%.
+sample 03: maximum error:  48, average error: 1.69, error ratio: 0.66%.
+sample 04: maximum error:  68, average error: 3.18, error ratio: 1.24%.
+sample 05: maximum error:  47, average error: 2.32, error ratio: 0.91%.
+sample 06: maximum error:  59, average error: 4.87, error ratio: 1.90%.
+sample 07: maximum error:  59, average error: 1.73, error ratio: 0.68%.
+sample 08: maximum error:  91, average error: 4.10, error ratio: 1.60%.
+sample 09: maximum error:  63, average error: 3.25, error ratio: 1.27%.
+sample 10: maximum error:  65, average error: 2.57, error ratio: 1.00%.
+sample 11: maximum error:  65, average error: 2.72, error ratio: 1.06%.
+sample 12: maximum error:  53, average error: 3.84, error ratio: 1.50%.
+sample 13: maximum error:  66, average error: 1.72, error ratio: 0.67%.
+sample 14: maximum error:  45, average error: 1.62, error ratio: 0.63%.
+sample 15: maximum error:  57, average error: 2.74, error ratio: 1.07%.
+</pre><h2><b>Create Picture with First 20 Eigvalues and Eigvectors</b><a name="3"></a></h2><pre>Using EIGS</pre><pre class="codeinput">fprintf(<span class="string">'ERROR Summary: Using eigs method\n'</span>);
+im_eig_set = zeros(n, im_h, im_w, <span class="string">'uint8'</span>);
+name_prefix = <span class="string">'subject'</span>;
+name_suffix = <span class="string">'.happy.eig.gif'</span>;
+<span class="keyword">for</span> id = 1 : n
+    im = reshape(im_set(id, :, :), im_h, im_w);
+    x = double(im);
+    [W, R, D, mu] = pca_eig(x, 20, <span class="string">'-exact -all'</span>);
+    y = bsxfun(@plus, R * W', mu);
+    gtcmap = find(y &gt;= im_map_length);
+    ltcmap = find(y &lt; 0);
+    <span class="keyword">if</span> (~isempty(gtcmap) || ~isempty(ltcmap))
+        y(gtcmap) = im_map_length - 1;
+        y(ltcmap) = 0;
+    <span class="keyword">end</span>
+    err = abs(im(:) - y(:)); y = uint8(y);
+    err_max = max(err);
+    err_avg = mean(err);
+    err_ratio = err_avg / double(im_map_length);
+    fprintf(<span class="string">'sample %02d: maximum error: %3.0f, '</span>, id, err_max);
+    fprintf(<span class="string">'average error: %4.2f, '</span>, err_avg);
+    fprintf(<span class="string">'error ratio: %4.2f%%.\n'</span>, err_ratio * 100);
+    im_eig_set(id, :, :) = y;
+    imwrite(y, im_map, sprintf(<span class="string">'%s%02d%s'</span>, name_prefix, id, name_suffix));
+<span class="keyword">end</span>
+save(<span class="string">'image_eig_set.mat'</span>, <span class="string">'im_eig_set'</span>);
+</pre><pre class="codeoutput">ERROR Summary: Using eigs method
+sample 01: maximum error:  95, average error: 3.69, error ratio: 1.44%.
+sample 02: maximum error:  90, average error: 4.28, error ratio: 1.67%.
+sample 03: maximum error:  77, average error: 3.21, error ratio: 1.25%.
+sample 04: maximum error: 100, average error: 4.56, error ratio: 1.78%.
+sample 05: maximum error:  66, average error: 3.66, error ratio: 1.43%.
+sample 06: maximum error:  72, average error: 6.68, error ratio: 2.61%.
+sample 07: maximum error: 100, average error: 2.98, error ratio: 1.16%.
+sample 08: maximum error: 102, average error: 5.73, error ratio: 2.24%.
+sample 09: maximum error:  85, average error: 4.65, error ratio: 1.82%.
+sample 10: maximum error:  89, average error: 4.42, error ratio: 1.73%.
+sample 11: maximum error:  83, average error: 4.40, error ratio: 1.72%.
+sample 12: maximum error:  76, average error: 5.41, error ratio: 2.11%.
+sample 13: maximum error: 114, average error: 2.73, error ratio: 1.07%.
+sample 14: maximum error:  83, average error: 2.50, error ratio: 0.98%.
+sample 15: maximum error:  72, average error: 4.02, error ratio: 1.57%.
+</pre><h2><b>Show All Picture</b><a name="4"></a></h2><pre class="codeinput"><span class="keyword">for</span> id = 1 : n / 3
+    figure(id);
+    <span class="keyword">for</span> ii = 1 : 3
+        subplot(3, 3, ii * 3 - 2);
+        im = reshape(im_set(id * 3 + ii - 3, :, :), im_h, im_w);
+        imshow(im, im_map);
+        title(<span class="string">'Before PCA'</span>);
+        subplot(3, 3, ii * 3 - 1);
+        im = reshape(im_svd_set(id * 3 + ii - 3, :, :), im_h, im_w);
+        imshow(im, im_map);
+        title(<span class="string">'SVD, n = 32'</span>);
+        subplot(3, 3, ii * 3);
+        im = reshape(im_eig_set(id * 3 + ii - 3, :, :), im_h, im_w);
+        imshow(im, im_map);
+        title(<span class="string">'EIGS, n = 20'</span>);
+    <span class="keyword">end</span>
+    saveas(gcf, strcat(<span class="string">'example01-'</span>, num2str(id)), <span class="string">'png'</span>);
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="example01_01.png" alt=""> <img vspace="5" hspace="5" src="example01_02.png" alt=""> <img vspace="5" hspace="5" src="example01_03.png" alt=""> <img vspace="5" hspace="5" src="example01_04.png" alt=""> <img vspace="5" hspace="5" src="example01_05.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Example 01 Using PCA in Demension Reduction of facial image
+% * used 20 eigvalues of each image
+% * maxinum error ratio less than 2.7%(n = 20), 2.0%(n = 32)
+% * maxinum absolute error may above 100 grayscale(8-bits gray image, n = 20)
+
+%% *READ DATA*
+if (exist('image_set.mat', 'file') ~= 2)
+    files = dir('*.happy.gif');
+    n = length(files);
+    info = imfinfo(files(1).name, 'gif');
+    im_map = info.ColorTable;
+    im_w = int32(info.Width);
+    im_h = int32(info.Height);
+    im_set = zeros(n, im_h, im_w, 'uint8');
+    for id = 1 : n
+        im_set(id, :, :) = imread(files(id).name, 'gif');
+    end
+    save('image_set.mat', 'im_set', 'im_map');
+else
+    load('image_set.mat');
+end
+[n, im_h, im_w] = size(im_set);
+im_map_length = size(im_map', 2);
+x = zeros(im_h, im_w);
+y = zeros(im_h, im_w);
+
+%% *Create Picture with First 32 Singular Values*
+%  Using SVD
+im_svd_set = zeros(n, im_h, im_w, 'uint8');
+fprintf('ERROR Summary: Using svd method\n');
+name_prefix = 'subject';
+name_suffix = '.happy.svd.gif';
+for id = 1 : n
+    im = reshape(im_set(id, :, :), im_h, im_w);
+    x = double(im);
+    [W, R, D, mu] = pca_svd(x, 32, '-exact -all');
+    y = bsxfun(@plus, R * W', mu);
+    gtcmap = find(y >= im_map_length);
+    ltcmap = find(y < 0);
+    if (~isempty(gtcmap) || ~isempty(ltcmap))
+        y(gtcmap) = im_map_length - 1;
+        y(ltcmap) = 0;
+    end
+    err = abs(x(:) - y(:)); y = uint8(y);
+    err_max = max(err);
+    err_avg = mean(err);
+    err_ratio = err_avg / double(im_map_length);
+    fprintf('sample %02d: maximum error: %3.0f, ', id, err_max);
+    fprintf('average error: %4.2f, ', err_avg);
+    fprintf('error ratio: %4.2f%%.\n', err_ratio * 100);
+    im_svd_set(id, :, :) = y;
+    imwrite(y, im_map, sprintf('%s%02d%s', name_prefix, id, name_suffix));
+end
+save('image_svd_set.mat', 'im_svd_set');
+
+%% *Create Picture with First 20 Eigvalues and Eigvectors*
+%  Using EIGS
+fprintf('ERROR Summary: Using eigs method\n');
+im_eig_set = zeros(n, im_h, im_w, 'uint8');
+name_prefix = 'subject';
+name_suffix = '.happy.eig.gif';
+for id = 1 : n
+    im = reshape(im_set(id, :, :), im_h, im_w);
+    x = double(im);
+    [W, R, D, mu] = pca_eig(x, 20, '-exact -all');
+    y = bsxfun(@plus, R * W', mu);
+    gtcmap = find(y >= im_map_length);
+    ltcmap = find(y < 0);
+    if (~isempty(gtcmap) || ~isempty(ltcmap))
+        y(gtcmap) = im_map_length - 1;
+        y(ltcmap) = 0;
+    end
+    err = abs(im(:) - y(:)); y = uint8(y);
+    err_max = max(err);
+    err_avg = mean(err);
+    err_ratio = err_avg / double(im_map_length);
+    fprintf('sample %02d: maximum error: %3.0f, ', id, err_max);
+    fprintf('average error: %4.2f, ', err_avg);
+    fprintf('error ratio: %4.2f%%.\n', err_ratio * 100);
+    im_eig_set(id, :, :) = y;
+    imwrite(y, im_map, sprintf('%s%02d%s', name_prefix, id, name_suffix));
+end
+save('image_eig_set.mat', 'im_eig_set');
+
+%% *Show All Picture*
+for id = 1 : n / 3
+    figure(id);
+    for ii = 1 : 3
+        subplot(3, 3, ii * 3 - 2);
+        im = reshape(im_set(id * 3 + ii - 3, :, :), im_h, im_w);
+        imshow(im, im_map);
+        title('Before PCA');
+        subplot(3, 3, ii * 3 - 1);
+        im = reshape(im_svd_set(id * 3 + ii - 3, :, :), im_h, im_w);
+        imshow(im, im_map);
+        title('SVD, n = 32');
+        subplot(3, 3, ii * 3);
+        im = reshape(im_eig_set(id * 3 + ii - 3, :, :), im_h, im_w);
+        imshow(im, im_map);
+        title('EIGS, n = 20');
+    end
+    saveas(gcf, strcat('example01-', num2str(id)), 'png');
+end
+##### SOURCE END #####
+--></body></html>

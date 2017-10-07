@@ -1,0 +1,242 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Example 03 Using MDS in Demension Reduction of Some Surface</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-05-17"><meta name="DC.source" content="example03.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Example 03 Using MDS in Demension Reduction of Some Surface</h1><!--introduction--><div><ul><li>2 example with result and errors</li><li>huge error on edges or points with large curvature</li><li>average error no more than 10%</li></ul></div><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1"><b>Create DATA</b></a></li><li><a href="#2"><b>Plot Surface A: Circle-like Surface</b></a></li><li><a href="#3"><b>Plot Surface B: Half-Sphere</b></a></li></ul></div><h2><b>Create DATA</b><a name="1"></a></h2><pre class="codeinput"><span class="keyword">if</span> (exist(<span class="string">'my_surfaces.mat'</span>, <span class="string">'file'</span>) ~= 2)
+    mark_size = 32;
+
+    <span class="comment">% surface A</span>
+    len = 1000;
+    theta = 0.5 * pi * rand(len, 1);
+    r = (0.95 + 0.1 * rand(len, 1));
+    x = [r(1 : len / 2) .* cos(0.5 * pi + 0.5 * theta(1 : len / 2));
+         r .* cos(theta); r .* cos(pi + theta) + 2;
+         r(1 : len / 2) .* cos(1.5 * pi + 0.5 * theta(1 : len / 2)) + 2];
+    y = [r(1 : len / 2) .* sin(0.5 * pi + 0.5 * theta(1 : len / 2));
+         r .* sin(theta); r .* sin(pi + theta);
+         r(1 : len / 2) .* sin(1.5 * pi + 0.5 * theta(1 : len / 2))];
+    z = rand(3 * len, 1);
+    val = (x - 1) .* (x - 1) + y .* y;
+    surface_1 = [x, y, z, val];
+
+    <span class="comment">% surface B</span>
+    len = 50;
+    phi = 0.5 * pi * rand(len, len);
+    theta = 2 * pi * rand(len, len);
+    Phi = phi(:); Theta = theta(:);
+    r = 0.95 + 0.1 * rand(len, len); r = r(:);
+    x = r .* sin(Phi) .* cos(Theta);
+    y = r .* sin(Phi) .* sin(Theta);
+    z = r .* cos(Phi);
+    val = Phi;
+    surface_2 = [x, y, z, val];
+
+    save(<span class="string">'my_surfaces.mat'</span>, <span class="string">'mark_size'</span>, <span class="string">'surface_1'</span>, <span class="string">'surface_2'</span>);
+<span class="keyword">else</span>
+    load(<span class="string">'my_surfaces.mat'</span>);
+<span class="keyword">end</span>
+</pre><h2><b>Plot Surface A: Circle-like Surface</b><a name="2"></a></h2><pre class="codeinput">x = surface_1(:, 1);
+y = surface_1(:, 2);
+z = surface_1(:, 3);
+val = surface_1(:, 4);
+d_origin = pdist([x, y, z]);
+[YY, e] = mds(d_origin, 2);
+d_mds = pdist(YY);
+err = abs(d_mds - d_origin) ./ bsxfun(@plus, d_origin, 1e-8);
+err_max = max(err); err_avg = mean(err);
+figure(1); colormap(<span class="string">'jet'</span>);
+scatter3(x, y, z, mark_size, val);
+title(<span class="string">'Surface in 3D'</span>);
+saveas(gcf, <span class="string">'example03-1'</span>, <span class="string">'png'</span>);
+figure(2); colormap(<span class="string">'jet'</span>);
+scatter(YY(:, 1), YY(:, 2), mark_size, val);
+ylim([-0.6, 0.6]); title(<span class="string">'After MDS'</span>);
+saveas(gcf, <span class="string">'example03-2'</span>, <span class="string">'png'</span>);
+fprintf(<span class="string">'Surface A: Circle-like Surface\n'</span>);
+fprintf(<span class="string">'    Eigenvalue e = [%f, %f]\n'</span>, e(1), e(2));
+fprintf(<span class="string">'    Maximum Error Ratio = %4.2f%%\n'</span>, err_max * 100);
+fprintf(<span class="string">'    Average Error Ratio = %4.2f%%\n'</span>, err_avg * 100);
+</pre><pre class="codeoutput">Surface A: Circle-like Surface
+    Eigenvalue e = [3933.383573, 250.786951]
+    Maximum Error Ratio = 99.48%
+    Average Error Ratio = 6.44%
+</pre><img vspace="5" hspace="5" src="example03_01.png" alt=""> <img vspace="5" hspace="5" src="example03_02.png" alt=""> <h2><b>Plot Surface B: Half-Sphere</b><a name="3"></a></h2><pre class="codeinput">x = surface_2(:, 1);
+y = surface_2(:, 2);
+z = surface_2(:, 3);
+val = surface_2(:, 4);
+d_origin = pdist([x, y, z]);
+[YY, e] = mds(d_origin, 2);
+d_mds = pdist(YY);
+err = abs(d_mds - d_origin) ./ bsxfun(@plus, d_origin, 1e-8);
+err_max = max(err); err_avg = mean(err);
+figure(3); colormap(<span class="string">'winter'</span>);
+scatter3(x, y, z, mark_size, val);
+xlim([-1.2, 1.2]); ylim([-1.2, 1.2]);
+saveas(gcf, <span class="string">'example03-3'</span>, <span class="string">'png'</span>);
+title(<span class="string">'Surface in 3D'</span>);
+figure(4); colormap(<span class="string">'winter'</span>);
+scatter(YY(:, 1), YY(:, 2), mark_size, val);
+title(<span class="string">'After MDS'</span>);
+saveas(gcf, <span class="string">'example03-4'</span>, <span class="string">'png'</span>);
+fprintf(<span class="string">'Surface B: Half-Sphere\n'</span>);
+fprintf(<span class="string">'    Eigenvalue e = [%f, %f]\n'</span>, e(1), e(2));
+fprintf(<span class="string">'    Maximum Error Ratio = %4.2f%%\n'</span>, err_max * 100);
+fprintf(<span class="string">'    Average Error Ratio = %4.2f%%\n'</span>, err_avg * 100);
+</pre><pre class="codeoutput">Surface B: Half-Sphere
+    Eigenvalue e = [622.418653, 611.885027]
+    Maximum Error Ratio = 98.73%
+    Average Error Ratio = 9.94%
+</pre><img vspace="5" hspace="5" src="example03_03.png" alt=""> <img vspace="5" hspace="5" src="example03_04.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Example 03 Using MDS in Demension Reduction of Some Surface
+% * 2 example with result and errors
+% * huge error on edges or points with large curvature
+% * average error no more than 10%
+
+%% *Create DATA*
+if (exist('my_surfaces.mat', 'file') ~= 2)
+    mark_size = 32;
+
+    % surface A
+    len = 1000;
+    theta = 0.5 * pi * rand(len, 1);
+    r = (0.95 + 0.1 * rand(len, 1));
+    x = [r(1 : len / 2) .* cos(0.5 * pi + 0.5 * theta(1 : len / 2));
+         r .* cos(theta); r .* cos(pi + theta) + 2;
+         r(1 : len / 2) .* cos(1.5 * pi + 0.5 * theta(1 : len / 2)) + 2];
+    y = [r(1 : len / 2) .* sin(0.5 * pi + 0.5 * theta(1 : len / 2));
+         r .* sin(theta); r .* sin(pi + theta);
+         r(1 : len / 2) .* sin(1.5 * pi + 0.5 * theta(1 : len / 2))];
+    z = rand(3 * len, 1);
+    val = (x - 1) .* (x - 1) + y .* y;
+    surface_1 = [x, y, z, val];
+
+    % surface B
+    len = 50;
+    phi = 0.5 * pi * rand(len, len);
+    theta = 2 * pi * rand(len, len);
+    Phi = phi(:); Theta = theta(:);
+    r = 0.95 + 0.1 * rand(len, len); r = r(:);
+    x = r .* sin(Phi) .* cos(Theta);
+    y = r .* sin(Phi) .* sin(Theta);
+    z = r .* cos(Phi);
+    val = Phi;
+    surface_2 = [x, y, z, val];
+
+    save('my_surfaces.mat', 'mark_size', 'surface_1', 'surface_2');
+else
+    load('my_surfaces.mat');
+end
+
+%% *Plot Surface A: Circle-like Surface*
+x = surface_1(:, 1);
+y = surface_1(:, 2);
+z = surface_1(:, 3);
+val = surface_1(:, 4);
+d_origin = pdist([x, y, z]);
+[YY, e] = mds(d_origin, 2);
+d_mds = pdist(YY);
+err = abs(d_mds - d_origin) ./ bsxfun(@plus, d_origin, 1e-8);
+err_max = max(err); err_avg = mean(err);
+figure(1); colormap('jet');
+scatter3(x, y, z, mark_size, val);
+title('Surface in 3D');
+saveas(gcf, 'example03-1', 'png');
+figure(2); colormap('jet');
+scatter(YY(:, 1), YY(:, 2), mark_size, val);
+ylim([-0.6, 0.6]); title('After MDS');
+saveas(gcf, 'example03-2', 'png');
+fprintf('Surface A: Circle-like Surface\n');
+fprintf('    Eigenvalue e = [%f, %f]\n', e(1), e(2));
+fprintf('    Maximum Error Ratio = %4.2f%%\n', err_max * 100);
+fprintf('    Average Error Ratio = %4.2f%%\n', err_avg * 100);
+
+%% *Plot Surface B: Half-Sphere*
+x = surface_2(:, 1);
+y = surface_2(:, 2);
+z = surface_2(:, 3);
+val = surface_2(:, 4);
+d_origin = pdist([x, y, z]);
+[YY, e] = mds(d_origin, 2);
+d_mds = pdist(YY);
+err = abs(d_mds - d_origin) ./ bsxfun(@plus, d_origin, 1e-8);
+err_max = max(err); err_avg = mean(err);
+figure(3); colormap('winter');
+scatter3(x, y, z, mark_size, val);
+xlim([-1.2, 1.2]); ylim([-1.2, 1.2]);
+saveas(gcf, 'example03-3', 'png');
+title('Surface in 3D');
+figure(4); colormap('winter');
+scatter(YY(:, 1), YY(:, 2), mark_size, val);
+title('After MDS');
+saveas(gcf, 'example03-4', 'png');
+fprintf('Surface B: Half-Sphere\n');
+fprintf('    Eigenvalue e = [%f, %f]\n', e(1), e(2));
+fprintf('    Maximum Error Ratio = %4.2f%%\n', err_max * 100);
+fprintf('    Average Error Ratio = %4.2f%%\n', err_avg * 100);
+##### SOURCE END #####
+--></body></html>

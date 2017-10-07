@@ -1,0 +1,223 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Example 04 Using MDS in Demension Reduction of SWISS ROLL</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-05-17"><meta name="DC.source" content="example04.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Example 04 Using MDS in Demension Reduction of SWISS ROLL</h1><!--introduction--><div><ul><li>create swiss roll by myself</li><li>wonderful result using isomap-processed distance metric</li><li>terrible result using Euclidean distance directly</li></ul></div><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1"><b>Create DATA</b></a></li><li><a href="#2"><b>Plot Original SWISS ROLL and ROTATED version</b></a></li><li><a href="#3"><b>Bad Result with Naive Euclidean Distance</b></a></li><li><a href="#4"><b>Pretty Result with ISOMAP</b></a></li></ul></div><h2><b>Create DATA</b><a name="1"></a></h2><pre class="codeinput"><span class="keyword">if</span> (exist(<span class="string">'my_swiss_roll.mat'</span>, <span class="string">'file'</span>) ~= 2)
+    len = 2500; a = 1;
+    theta = pi + 3 * pi * rand(len, 1);
+    r_ = a * theta;
+    r = r_ .* (0.9 + 0.1 * rand(len, 1));
+    swiss_roll_val = r_;
+    swiss_roll_origin = [
+        r .* cos(theta), r .* sin(theta), pi * rand(len, 1), ones(len, 1)
+    ];
+    alpha = [pi / 4, pi / 12, -pi / 2];
+    A1 = [
+        cos(alpha(1)), sin(alpha(1)), 0, 0;
+        sin(alpha(1)), -cos(alpha(1)), 0, 0;
+        0, 0, 1, 0; 0, 0, 0, 1
+    ];
+    A2 = [
+        cos(alpha(2)), 0, sin(alpha(2)), 0; 0, 1, 0, 0;
+        sin(alpha(2)), 0, -cos(alpha(2)), 0; 0, 0, 0, 1
+    ];
+    A3 = [
+        1, 0, 0, 0; 0, cos(alpha(3)), sin(alpha(3)), 0;
+        0, sin(alpha(3)), -cos(alpha(3)), 0; 0, 0, 0, 1
+    ];
+    T = A1 * A2 * A3;
+    swiss_roll_rotate = swiss_roll_origin * T;
+    save(<span class="string">'my_swiss_roll.mat'</span>, <span class="string">'a'</span>, <span class="string">'theta'</span>, <span class="string">'swiss_roll_val'</span>, <span class="keyword">...</span>
+        <span class="string">'len'</span>, <span class="string">'swiss_roll_origin'</span>, <span class="string">'swiss_roll_rotate'</span> <span class="keyword">...</span>
+    );
+<span class="keyword">else</span>
+    load(<span class="string">'my_swiss_roll.mat'</span>);
+<span class="keyword">end</span>
+</pre><h2><b>Plot Original SWISS ROLL and ROTATED version</b><a name="2"></a></h2><pre class="codeinput">mark_size = 32;
+x = swiss_roll_origin(:, 1);
+y = swiss_roll_origin(:, 2);
+z = swiss_roll_origin(:, 3);
+r = swiss_roll_val;
+figure(1); colormap(<span class="string">'winter'</span>);
+scatter3(x, y, z, mark_size, r);
+title(<span class="string">'SWISS ROLL'</span>);
+saveas(gcf, <span class="string">'example04-1'</span>, <span class="string">'png'</span>);
+
+xx = swiss_roll_rotate(:, 1);
+yy = swiss_roll_rotate(:, 2);
+zz = swiss_roll_rotate(:, 3);
+figure(2); colormap(<span class="string">'winter'</span>);
+scatter3(xx, yy, zz, mark_size, r);
+title(<span class="string">'SWISS ROLL, ROTATED'</span>);
+saveas(gcf, <span class="string">'example04-2'</span>, <span class="string">'png'</span>);
+</pre><img vspace="5" hspace="5" src="example04_01.png" alt=""> <img vspace="5" hspace="5" src="example04_02.png" alt=""> <h2><b>Bad Result with Naive Euclidean Distance</b><a name="3"></a></h2><p>using my own function <tt>mds(_1, _2)</tt></p><pre class="codeinput">XX = [xx, yy, zz];
+XX = bsxfun(@minus, XX, mean(XX));
+XX = bsxfun(@rdivide, XX, std(XX));
+[YY1, e] = mds(pdist(XX), 3);
+fprintf(<span class="string">'e = [%f, %f, %f]\n'</span>, e(1), e(2), e(3));
+figure(3); colormap(<span class="string">'winter'</span>);
+scatter(YY1(:, 1), YY1(:, 2), mark_size, r);
+title(<span class="string">'After MDS, Using First Two Eigenvalue'</span>);
+saveas(gcf, <span class="string">'example04-3'</span>, <span class="string">'png'</span>);
+</pre><pre class="codeoutput">e = [4550.301645, 2478.086298, 468.612057]
+</pre><img vspace="5" hspace="5" src="example04_03.png" alt=""> <h2><b>Pretty Result with ISOMAP</b><a name="4"></a></h2><p>using matlab function <tt>cmdscale(_1, _2)</tt></p><pre class="codeinput">geoL = @( a, phi ) ( <span class="keyword">...</span>
+    a .* ( <span class="keyword">...</span>
+        phi .* 0.5 .* sqrt( 1 + phi .^ 2 ) + <span class="keyword">...</span>
+        0.5 .* log(phi + sqrt( 1 + phi .^ 2 ) ) <span class="keyword">...</span>
+        ) <span class="keyword">...</span>
+    );
+YY2 = cmdscale(pdist([geoL(a, theta), z]));
+figure(4); colormap(<span class="string">'winter'</span>);
+scatter(YY2(:, 1), YY2(:, 2), mark_size, r);
+title(<span class="string">'After ISOMAP + MDS'</span>);
+saveas(gcf, <span class="string">'example04-4'</span>, <span class="string">'png'</span>);
+</pre><img vspace="5" hspace="5" src="example04_04.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Example 04 Using MDS in Demension Reduction of SWISS ROLL
+% * create swiss roll by myself
+% * wonderful result using isomap-processed distance metric
+% * terrible result using Euclidean distance directly
+
+%% *Create DATA*
+if (exist('my_swiss_roll.mat', 'file') ~= 2)
+    len = 2500; a = 1;
+    theta = pi + 3 * pi * rand(len, 1);
+    r_ = a * theta;
+    r = r_ .* (0.9 + 0.1 * rand(len, 1));
+    swiss_roll_val = r_;
+    swiss_roll_origin = [
+        r .* cos(theta), r .* sin(theta), pi * rand(len, 1), ones(len, 1)
+    ];
+    alpha = [pi / 4, pi / 12, -pi / 2];
+    A1 = [
+        cos(alpha(1)), sin(alpha(1)), 0, 0;
+        sin(alpha(1)), -cos(alpha(1)), 0, 0;
+        0, 0, 1, 0; 0, 0, 0, 1
+    ];
+    A2 = [
+        cos(alpha(2)), 0, sin(alpha(2)), 0; 0, 1, 0, 0;
+        sin(alpha(2)), 0, -cos(alpha(2)), 0; 0, 0, 0, 1
+    ];
+    A3 = [
+        1, 0, 0, 0; 0, cos(alpha(3)), sin(alpha(3)), 0;
+        0, sin(alpha(3)), -cos(alpha(3)), 0; 0, 0, 0, 1
+    ];
+    T = A1 * A2 * A3;
+    swiss_roll_rotate = swiss_roll_origin * T;
+    save('my_swiss_roll.mat', 'a', 'theta', 'swiss_roll_val', ...
+        'len', 'swiss_roll_origin', 'swiss_roll_rotate' ...
+    );
+else
+    load('my_swiss_roll.mat');
+end
+
+%% *Plot Original SWISS ROLL and ROTATED version*
+mark_size = 32;
+x = swiss_roll_origin(:, 1);
+y = swiss_roll_origin(:, 2);
+z = swiss_roll_origin(:, 3);
+r = swiss_roll_val;
+figure(1); colormap('winter');
+scatter3(x, y, z, mark_size, r);
+title('SWISS ROLL');
+saveas(gcf, 'example04-1', 'png');
+
+xx = swiss_roll_rotate(:, 1);
+yy = swiss_roll_rotate(:, 2);
+zz = swiss_roll_rotate(:, 3);
+figure(2); colormap('winter');
+scatter3(xx, yy, zz, mark_size, r);
+title('SWISS ROLL, ROTATED');
+saveas(gcf, 'example04-2', 'png');
+
+%% *Bad Result with Naive Euclidean Distance*
+% using my own function |mds(_1, _2)|
+XX = [xx, yy, zz];
+XX = bsxfun(@minus, XX, mean(XX));
+XX = bsxfun(@rdivide, XX, std(XX));
+[YY1, e] = mds(pdist(XX), 3);
+fprintf('e = [%f, %f, %f]\n', e(1), e(2), e(3));
+figure(3); colormap('winter');
+scatter(YY1(:, 1), YY1(:, 2), mark_size, r);
+title('After MDS, Using First Two Eigenvalue');
+saveas(gcf, 'example04-3', 'png');
+
+%% *Pretty Result with ISOMAP*
+% using matlab function |cmdscale(_1, _2)|
+geoL = @( a, phi ) ( ...
+    a .* ( ...
+        phi .* 0.5 .* sqrt( 1 + phi .^ 2 ) + ...
+        0.5 .* log(phi + sqrt( 1 + phi .^ 2 ) ) ...
+        ) ...
+    );
+YY2 = cmdscale(pdist([geoL(a, theta), z]));
+figure(4); colormap('winter');
+scatter(YY2(:, 1), YY2(:, 2), mark_size, r);
+title('After ISOMAP + MDS');
+saveas(gcf, 'example04-4', 'png');
+##### SOURCE END #####
+--></body></html>
