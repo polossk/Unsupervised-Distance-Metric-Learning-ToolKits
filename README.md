@@ -5,7 +5,7 @@
 ![Status](https://img.shields.io/badge/status-abandoned-828282.svg)
 
 ## Portals
->[[Code with Matlab Publish]](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/) [[git code]](https://github.com/polossk/Bookcode-of-Unsupervised-Distance-Metric-Learning-ToolKits/) [[git site]](https://github.com/polossk/Bookcode-of-Unsupervised-Distance-Metric-Learning-ToolKits-Web/)
+>[[Code with Matlab Publish]](http://bookcode.polossk.com/Unsupervised-Distance-Metric-Learning-ToolKits/) [[git code]](https://github.com/polossk/Bookcode-of-Unsupervised-Distance-Metric-Learning-ToolKits/)
 
 >[Machine Learning Notebook @Polo's Blog](http://blog.polossk.com/ml-lessonnote/)
 
